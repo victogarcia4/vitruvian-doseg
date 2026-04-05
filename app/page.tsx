@@ -126,7 +126,7 @@ const translations: Record<Language, Translation> = {
       plans: [
         {
           name: 'Student',
-          price: '$19',
+          price: '$9',
           period: '/month',
           description: 'Perfect for nursing students and new graduates',
           features: [
@@ -140,7 +140,7 @@ const translations: Record<Language, Translation> = {
         },
         {
           name: 'Professional',
-          price: '$39',
+          price: '$29',
           period: '/month',
           description: 'For practicing nurses seeking to sharpen skills',
           features: [
@@ -245,7 +245,7 @@ const translations: Record<Language, Translation> = {
       plans: [
         {
           name: 'Estudiante',
-          price: '$19',
+          price: '$9',
           period: '/mes',
           description: 'Perfecto para estudiantes de enfermería y recién graduados',
           features: [
@@ -259,7 +259,7 @@ const translations: Record<Language, Translation> = {
         },
         {
           name: 'Profesional',
-          price: '$39',
+          price: '$29',
           period: '/mes',
           description: 'Para enfermeros en ejercicio que buscan mejorar habilidades',
           features: [
