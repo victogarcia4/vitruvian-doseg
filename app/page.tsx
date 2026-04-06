@@ -2,9 +2,11 @@
 
 import { useState } from 'react';
 import { CheckIcon, GlobeAltIcon, AcademicCapIcon, ChartBarIcon, UserGroupIcon, ClockIcon, SparklesIcon, FireIcon, ScaleIcon, ArrowsUpDownIcon } from '@heroicons/react/24/outline';
+import { ContactForm } from "@/components/ui/contact-form";
 import { GlowCard } from '@/components/ui/spotlight-card';
 import { ShinyButton } from '@/components/ui/shiny-button';
 import { GradientCard } from '@/components/ui/gradient-card';
+import { FAQAccordion } from '@/components/ui/faq-accordion';
 
 type Language = 'en' | 'es';
 
@@ -14,6 +16,8 @@ interface Translation {
     testimonials: string;
     calculators: string;
     pricing: string;
+    contact: string;
+    faq: string;
   };
   hero: {
     badge: string;
@@ -60,6 +64,11 @@ interface Translation {
     weight: { title: string; kg: string; lbs: string; g: string; mg: string; oz: string; };
     height: { title: string; cm: string; m: string; };
   };
+  faq: {
+    title: string;
+    subtitle: string;
+    items: Array<{ question: string; answer: string; }>;
+  };
 }
 
 const translations: Record<Language, Translation> = {
@@ -68,12 +77,14 @@ const translations: Record<Language, Translation> = {
       features: 'Features',
       testimonials: 'Testimonials',
       calculators: 'Calculators',
-      pricing: 'Pricing'
+      pricing: 'Pricing',
+      contact: 'Contact',
+      faq: 'FAQ'
     },
     hero: {
       badge: '🎓 AI-Powered Math Education for Nurses',
       headline: 'Master Math for Nurses with Confidence',
-      subheadline: 'Vitruvian DoseGennie uses AI to help nurses conquer dosage calculations, drug conversions, and IV drip rates with personalized learning paths.',
+      subheadline: 'DoseGennie uses AI to help nurses conquer dosage calculations, drug conversions, and IV drip rates with personalized learning paths.',
       cta: 'Enroll in Math for Nurses Course',
       secondaryCta: 'Watch Course Demo'
     },
@@ -204,19 +215,34 @@ const translations: Record<Language, Translation> = {
         cm: 'Centimeters (cm)',
         m: 'Meters (m)',
       },
+    },
+    faq: {
+      title: 'Frequently Asked Questions',
+      subtitle: 'Find answers to common questions about DoseGennie plans and features',
+      items: [
+        { question: 'What are the plan prices?', answer: 'We offer several plans: Free trial (up to 10 conversions without credit card and lessons 0 and 1 of the course), Student ($9/month), Professional ($29/month) and Institutional (custom price, consult with sales).' },
+        { question: 'What does the Student plan include?', answer: 'It costs $9/month and includes access to all basic math modules, AI-powered practice problems, access to the mobile app, progress tracking, and access to the community forum.' },
+        { question: 'What does the Professional plan include?', answer: 'It costs $29/month and is for practicing nurses looking to enhance their skills. It includes everything in the Student plan, advanced clinical scenarios, specialty-specific modules (ICU, Pediatrics, ER), a certificate of completion, priority email support, and continuing education credits.' },
+        { question: 'What does the Institutional plan include?', answer: 'Customized pricing available, please consult with the sales department.' },
+        { question: 'How can I subscribe?', answer: 'Create a free account and then select the plan that best suits you.' },
+        { question: 'What are the differences between the Student, Professional, and Institutional plans?', answer: 'Student ($9/month) offers basic modules and study tools. Professional ($29/month) adds advanced clinical scenarios, specialty modules, and certificates for nurses. Institutional offers customized pricing for organizations.' },
+        { question: 'How do I contact customer support or service?', answer: 'You can contact us through our message form.' }
+      ]
     }
   },
   es: {
     nav: {
       features: 'Características',
       testimonials: 'Testimonios',
-      calculators: 'Calculadores',
-      pricing: 'Precios'
+      calculators: 'Calculadoras',
+      pricing: 'Precios',
+      contact: 'Contacto',
+      faq: 'FAQ'
     },
     hero: {
       badge: '🎓 Educación Matemática con IA para Enfermeros',
       headline: 'Domina Matemáticas para Enfermeros con Confianza',
-      subheadline: 'Vitruvian DoseGennie usa IA para ayudar a enfermeros a conquistar cálculos de dosificación, conversiones de medicamentos y velocidades de goteo IV con rutas de aprendizaje personalizadas.',
+      subheadline: 'DoseGennie usa IA para ayudar a enfermeros a conquistar cálculos de dosificación, conversiones de medicamentos y velocidades de goteo IV con rutas de aprendizaje personalizadas.',
       cta: 'Inscríbete en el Curso de Matemáticas para Enfermeros',
       secondaryCta: 'Ver Demo del Curso'
     },
@@ -347,6 +373,19 @@ const translations: Record<Language, Translation> = {
         cm: 'Centímetros (cm)',
         m: 'Metros (m)',
       },
+    },
+    faq: {
+      title: 'Preguntas Frecuentes',
+      subtitle: 'Encuentra respuestas a las dudas comunes sobre los planes y funciones de DoseGennie',
+      items: [
+        { question: '¿Cuáles son los precios de los planes?', answer: 'Ofrecemos varios planes: Prueba gratuita (hasta 10 conversiones sin tarjeta de crédito y lecciones 0 y 1 del curso), Estudiante ($9/mes), Profesional ($29/mes) e Institucional (precio personalizado, consultar con ventas).' },
+        { question: '¿Qué incluye el plan de Estudiante?', answer: 'Cuesta $9/mes e incluye acceso a todos los módulos básicos de matemáticas, problemas de práctica impulsados por IA, acceso a la aplicación móvil, seguimiento del progreso y acceso al foro de la comunidad.' },
+        { question: '¿Qué incluye el plan Profesional?', answer: 'Cuesta $29/mes y es para enfermeras en práctica que buscan mejorar sus habilidades. Incluye todo lo del plan de Estudiante, escenarios clínicos avanzados, módulos específicos por especialidad (UCI, Pediatría, Urgencias), certificado de finalización, soporte prioritario por correo electrónico y créditos de educación continua.' },
+        { question: '¿Qué incluye el plan Institucional?', answer: 'Precios personalizados disponibles, por favor consulte con el departamento de ventas.' },
+        { question: '¿Cómo puedo suscribirme?', answer: 'Crea una cuenta gratuita y luego selecciona el plan que mejor se adapte a ti.' },
+        { question: '¿Cuáles son las diferencias entre los planes Estudiante, Profesional e Institucional?', answer: 'Estudiante ($9/mes) ofrece módulos básicos y herramientas de estudio. Profesional ($29/mes) añade escenarios clínicos avanzados, módulos de especialidad y certificados. Institucional ofrece precios personalizados para organizaciones.' },
+        { question: '¿Cómo puedo contactar con el soporte o servicio al cliente?', answer: 'Puedes contactarnos a través de nuestro formulario de mensajes.' }
+      ]
     }
   }
 };
@@ -454,7 +493,7 @@ export default function Home() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
             <div className="flex items-center">
-              <h1 className="text-xl sm:text-2xl font-bold text-primary">Vitruvian DoseGennie</h1>
+              <h1 className="text-xl sm:text-2xl font-bold text-primary">DoseGennie</h1>
             </div>
 
             {/* Desktop Navigation */}
@@ -470,6 +509,12 @@ export default function Home() {
               </a>
               <a href="#pricing" className="text-foreground hover:text-primary transition-colors cursor-pointer">
                 {t.nav.pricing}
+              </a>
+              <a href="#contact" className="text-foreground hover:text-primary transition-colors cursor-pointer">
+                {t.nav.contact}
+              </a>
+              <a href="#faq" className="text-foreground hover:text-primary transition-colors cursor-pointer">
+                {t.nav.faq}
               </a>
               <ShinyButton
                 onClick={() => setLanguage(language === 'en' ? 'es' : 'en')}
@@ -507,45 +552,21 @@ export default function Home() {
             </div>
           </div>
 
-          {/* Mobile Menu */}
           {mobileMenuOpen && (
             <div className="md:hidden py-4 border-t border-primary/10">
               <div className="flex flex-col space-y-4">
-                <a
-                  href="#features"
-                  className="text-foreground hover:text-primary transition-colors cursor-pointer px-2 py-2"
-                  onClick={() => setMobileMenuOpen(false)}
-                >
-                  {t.nav.features}
-                </a>
-                <a
-                  href="#testimonials"
-                  className="text-foreground hover:text-primary transition-colors cursor-pointer px-2 py-2"
-                  onClick={() => setMobileMenuOpen(false)}
-                >
-                  {t.nav.testimonials}
-                </a>
-                <a
-                  href="#calculators"
-                  className="text-foreground hover:text-primary transition-colors cursor-pointer px-2 py-2"
-                  onClick={() => setMobileMenuOpen(false)}
-                >
-                  {t.nav.calculators}
-                </a>
-                <a
-                  href="#pricing"
-                  className="text-foreground hover:text-primary transition-colors cursor-pointer px-2 py-2"
-                  onClick={() => setMobileMenuOpen(false)}
-                >
-                  {t.nav.pricing}
-                </a>
+                <a href="#features" className="text-foreground hover:text-primary transition-colors cursor-pointer px-2 py-2" onClick={() => setMobileMenuOpen(false)}>{t.nav.features}</a>
+                <a href="#testimonials" className="text-foreground hover:text-primary transition-colors cursor-pointer px-2 py-2" onClick={() => setMobileMenuOpen(false)}>{t.nav.testimonials}</a>
+                <a href="#calculators" className="text-foreground hover:text-primary transition-colors cursor-pointer px-2 py-2" onClick={() => setMobileMenuOpen(false)}>{t.nav.calculators}</a>
+                <a href="#pricing" className="text-foreground hover:text-primary transition-colors cursor-pointer px-2 py-2" onClick={() => setMobileMenuOpen(false)}>{t.nav.pricing}</a>
+                <a href="#contact" className="text-foreground hover:text-primary transition-colors cursor-pointer px-2 py-2" onClick={() => setMobileMenuOpen(false)}>{t.nav.contact}</a>
+                <a href="#faq" className="text-foreground hover:text-primary transition-colors cursor-pointer px-2 py-2" onClick={() => setMobileMenuOpen(false)}>{t.nav.faq}</a>
               </div>
             </div>
           )}
         </div>
       </nav>
 
-      {/* Hero Section */}
       <section className="pt-24 sm:pt-32 pb-16 sm:pb-20 px-4 sm:px-6 lg:px-8">
         <div className="max-w-7xl mx-auto">
           <div className="text-center max-w-4xl mx-auto">
@@ -823,15 +844,41 @@ export default function Home() {
         </div>
       </section>
 
+      {/* FAQ Section */}
+      <section id="faq" className="py-20 sm:py-32 px-4 sm:px-6 lg:px-8 bg-white/50 backdrop-blur-sm relative overflow-hidden">
+        <div className="max-w-7xl mx-auto relative z-10">
+          <div className="text-center mb-16 sm:mb-20">
+            <h2 className="text-3xl sm:text-5xl lg:text-6xl font-extrabold text-primary mb-4 tracking-tight">
+              {t.faq.title}
+            </h2>
+            <p className="text-lg sm:text-xl text-foreground/70 max-w-2xl mx-auto px-4">
+              {t.faq.subtitle}
+            </p>
+          </div>
+          
+          <FAQAccordion items={t.faq.items} />
+        </div>
+      </section>
+      
+      {/* Support Section */}
+      <section id="contact" className="py-20 sm:py-32 px-4 sm:px-6 lg:px-8 bg-background relative overflow-hidden">
+        {/* Abstract background elements */}
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-primary/5 rounded-full blur-[120px] pointer-events-none" />
+        
+        <div className="max-w-7xl mx-auto relative z-10">
+          <ContactForm />
+        </div>
+      </section>
+
       {/* Footer */}
       <footer className="py-8 sm:py-12 px-4 sm:px-6 lg:px-8 border-t border-primary/10">
         <div className="max-w-7xl mx-auto text-center">
-          <h2 className="text-xl sm:text-2xl font-bold text-primary mb-3 sm:mb-4">Vitruvian DoseGennie</h2>
+          <h2 className="text-xl sm:text-2xl font-bold text-primary mb-3 sm:mb-4">DoseGennie</h2>
           <p className="text-sm sm:text-base text-foreground/70 mb-3 sm:mb-4 px-4">
             Empowering nurses with AI-powered math education
           </p>
           <p className="text-xs sm:text-sm text-foreground/50">
-            © 2026 Vitruvian DoseGennie. All rights reserved.
+            © 2026 DoseGennie. All rights reserved.
           </p>
         </div>
       </footer>
