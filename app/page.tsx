@@ -1,8 +1,10 @@
 'use client';
 
 import { useState } from 'react';
-import { CheckIcon, GlobeAltIcon, AcademicCapIcon, ChartBarIcon, UserGroupIcon, ClockIcon, SparklesIcon } from '@heroicons/react/24/outline';
+import { CheckIcon, GlobeAltIcon, AcademicCapIcon, ChartBarIcon, UserGroupIcon, ClockIcon, SparklesIcon, FireIcon, ScaleIcon, ArrowsUpDownIcon } from '@heroicons/react/24/outline';
 import { GlowCard } from '@/components/ui/spotlight-card';
+import { ShinyButton } from '@/components/ui/shiny-button';
+import { GradientCard } from '@/components/ui/gradient-card';
 
 type Language = 'en' | 'es';
 
@@ -10,6 +12,7 @@ interface Translation {
   nav: {
     features: string;
     testimonials: string;
+    calculators: string;
     pricing: string;
   };
   hero: {
@@ -50,6 +53,13 @@ interface Translation {
       popular?: boolean;
     }>;
   };
+  calculators: {
+    title: string;
+    subtitle: string;
+    temperature: { title: string; celsius: string; fahrenheit: string; kelvin: string; };
+    weight: { title: string; kg: string; lbs: string; g: string; mg: string; oz: string; };
+    height: { title: string; cm: string; m: string; };
+  };
 }
 
 const translations: Record<Language, Translation> = {
@@ -57,6 +67,7 @@ const translations: Record<Language, Translation> = {
     nav: {
       features: 'Features',
       testimonials: 'Testimonials',
+      calculators: 'Calculators',
       pricing: 'Pricing'
     },
     hero: {
@@ -170,12 +181,36 @@ const translations: Record<Language, Translation> = {
           cta: 'Contact Sales'
         }
       ]
+    },
+    calculators: {
+      title: 'Free Unit Calculators',
+      subtitle: 'Quick conversions for everyday clinical use — temperature, weight, and height',
+      temperature: {
+        title: 'Temperature',
+        celsius: 'Celsius (°C)',
+        fahrenheit: 'Fahrenheit (°F)',
+        kelvin: 'Kelvin (K)',
+      },
+      weight: {
+        title: 'Weight',
+        kg: 'Kilograms (kg)',
+        lbs: 'Pounds (lbs)',
+        g: 'Grams (g)',
+        mg: 'Milligrams (mg)',
+        oz: 'Ounces (oz)',
+      },
+      height: {
+        title: 'Height',
+        cm: 'Centimeters (cm)',
+        m: 'Meters (m)',
+      },
     }
   },
   es: {
     nav: {
       features: 'Características',
       testimonials: 'Testimonios',
+      calculators: 'Calculadores',
       pricing: 'Precios'
     },
     hero: {
@@ -289,6 +324,29 @@ const translations: Record<Language, Translation> = {
           cta: 'Contactar Ventas'
         }
       ]
+    },
+    calculators: {
+      title: 'Calculadoras de Unidades Gratis',
+      subtitle: 'Conversiones rápidas para uso clínico diario — temperatura, peso y altura',
+      temperature: {
+        title: 'Temperatura',
+        celsius: 'Celsius (°C)',
+        fahrenheit: 'Fahrenheit (°F)',
+        kelvin: 'Kelvin (K)',
+      },
+      weight: {
+        title: 'Peso',
+        kg: 'Kilogramos (kg)',
+        lbs: 'Libras (lbs)',
+        g: 'Gramos (g)',
+        mg: 'Miligramos (mg)',
+        oz: 'Onzas (oz)',
+      },
+      height: {
+        title: 'Altura',
+        cm: 'Centímetros (cm)',
+        m: 'Metros (m)',
+      },
     }
   }
 };
@@ -297,6 +355,97 @@ export default function Home() {
   const [language, setLanguage] = useState<Language>('en');
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const t = translations[language];
+
+  const [temp, setTemp] = useState({ celsius: '', fahrenheit: '', kelvin: '' });
+  const [weight, setWeight] = useState({ kg: '', lbs: '', g: '', mg: '', oz: '' });
+  const [height, setHeight] = useState({ feet: '', inches: '', cm: '', m: '' });
+
+  const formatNum = (n: number): string => parseFloat(n.toFixed(4)).toString();
+
+  const handleTemp = (field: 'celsius' | 'fahrenheit' | 'kelvin', value: string) => {
+    if (value === '') { setTemp({ celsius: '', fahrenheit: '', kelvin: '' }); return; }
+    const n = parseFloat(value);
+    if (isNaN(n)) { setTemp(prev => ({ ...prev, [field]: value })); return; }
+    const c = field === 'celsius' ? n : field === 'fahrenheit' ? (n - 32) * 5 / 9 : n - 273.15;
+    setTemp({
+      celsius:    field === 'celsius'     ? value : formatNum(c),
+      fahrenheit: field === 'fahrenheit'  ? value : formatNum(c * 9 / 5 + 32),
+      kelvin:     field === 'kelvin'      ? value : formatNum(c + 273.15),
+    });
+  };
+
+  const handleWeight = (field: 'kg' | 'lbs' | 'g' | 'mg' | 'oz', value: string) => {
+    if (value === '') { setWeight({ kg: '', lbs: '', g: '', mg: '', oz: '' }); return; }
+    const n = parseFloat(value);
+    if (isNaN(n)) { setWeight(prev => ({ ...prev, [field]: value })); return; }
+    const kg = field === 'kg' ? n : field === 'lbs' ? n / 2.20462 : field === 'g' ? n / 1000 : field === 'mg' ? n / 1000000 : n / 35.274;
+    setWeight({
+      kg:  field === 'kg'  ? value : formatNum(kg),
+      lbs: field === 'lbs' ? value : formatNum(kg * 2.20462),
+      g:   field === 'g'   ? value : formatNum(kg * 1000),
+      mg:  field === 'mg'  ? value : formatNum(kg * 1000000),
+      oz:  field === 'oz'  ? value : formatNum(kg * 35.274),
+    });
+  };
+
+  const handleHeight = (field: 'feet' | 'inches' | 'cm' | 'm', value: string) => {
+    if (value !== '' && isNaN(parseFloat(value)) && value !== '.' && value !== '-') {
+      setHeight(prev => ({ ...prev, [field]: value }));
+      return;
+    }
+
+    setHeight(prev => {
+      const next = { ...prev, [field]: value };
+      const n = (value === '' || value === '.' || value === '-') ? 0 : parseFloat(value);
+      
+      let totalInches: number;
+      if (field === 'feet' || field === 'inches') {
+        const ftInput = next.feet === '' || next.feet === '.' || next.feet === '-' ? 0 : parseFloat(next.feet);
+        const incInput = next.inches === '' || next.inches === '.' || next.inches === '-' ? 0 : parseFloat(next.inches);
+        totalInches = ftInput * 12 + incInput;
+      } else if (field === 'cm') {
+        totalInches = n / 2.54;
+      } else {
+        totalInches = n / 0.0254;
+      }
+
+      // Format results
+      const cmVal = formatNum(totalInches * 2.54);
+      const mVal = formatNum(totalInches * 0.0254);
+      
+      // Calculate normalized feet/inches for cases where we MUST change them (e.g. from metric)
+      const normFeet = Math.floor(totalInches / 12);
+      const normInches = totalInches % 12;
+
+      let newFeet: string;
+      let newInches: string;
+
+      if (field === 'feet') {
+        newFeet = value;
+        newInches = prev.inches;
+      } else if (field === 'inches') {
+        newInches = value;
+        newFeet = prev.feet;
+      } else {
+        // From Metric: Preserve feet if it "fits", otherwise normalize
+        const currentFeet = parseFloat(prev.feet || '0');
+        if (prev.feet !== '' && !isNaN(currentFeet) && currentFeet * 12 <= totalInches) {
+          newFeet = prev.feet;
+          newInches = formatNum(totalInches - currentFeet * 12);
+        } else {
+          newFeet = value === '' ? '' : normFeet.toString();
+          newInches = value === '' ? '' : formatNum(normInches);
+        }
+      }
+
+      return {
+        feet: newFeet,
+        inches: newInches,
+        cm: field === 'cm' ? value : (value === '' && field === 'm' ? '' : cmVal),
+        m: field === 'm' ? value : (value === '' && field === 'cm' ? '' : mVal),
+      };
+    });
+  };
 
   return (
     <div className="min-h-screen bg-background">
@@ -316,42 +465,45 @@ export default function Home() {
               <a href="#testimonials" className="text-foreground hover:text-primary transition-colors cursor-pointer">
                 {t.nav.testimonials}
               </a>
+              <a href="#calculators" className="text-foreground hover:text-primary transition-colors cursor-pointer">
+                {t.nav.calculators}
+              </a>
               <a href="#pricing" className="text-foreground hover:text-primary transition-colors cursor-pointer">
                 {t.nav.pricing}
               </a>
-              <button
+              <ShinyButton
                 onClick={() => setLanguage(language === 'en' ? 'es' : 'en')}
-                className="flex items-center gap-2 px-3 py-2 rounded-lg bg-primary/10 hover:bg-primary/20 text-primary transition-colors cursor-pointer"
+                className="flex items-center gap-2 px-3 py-1.5 bg-primary/10 hover:bg-primary/20 text-primary"
                 aria-label="Toggle language"
               >
-                <GlobeAltIcon className="h-5 w-5" />
+                <GlobeAltIcon className="h-4 w-4" />
                 <span className="font-medium">{language === 'en' ? 'ES' : 'EN'}</span>
-              </button>
+              </ShinyButton>
             </div>
 
             {/* Mobile Menu Button */}
             <div className="flex md:hidden items-center gap-3">
-              <button
+              <ShinyButton
                 onClick={() => setLanguage(language === 'en' ? 'es' : 'en')}
-                className="flex items-center gap-1 px-2 py-1 rounded-lg bg-primary/10 hover:bg-primary/20 text-primary transition-colors cursor-pointer"
+                className="flex items-center gap-1 px-2 py-1 bg-primary/10 hover:bg-primary/20 text-primary"
                 aria-label="Toggle language"
               >
                 <GlobeAltIcon className="h-4 w-4" />
-                <span className="font-medium text-sm">{language === 'en' ? 'ES' : 'EN'}</span>
-              </button>
-              <button
+                <span className="font-medium text-xs">{language === 'en' ? 'ES' : 'EN'}</span>
+              </ShinyButton>
+              <ShinyButton
                 onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-                className="p-2 rounded-lg hover:bg-primary/10 text-primary cursor-pointer"
+                className="p-1 px-2 bg-transparent hover:bg-primary/10 text-primary"
                 aria-label="Toggle menu"
               >
-                <svg className="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   {mobileMenuOpen ? (
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                   ) : (
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
                   )}
                 </svg>
-              </button>
+              </ShinyButton>
             </div>
           </div>
 
@@ -372,6 +524,13 @@ export default function Home() {
                   onClick={() => setMobileMenuOpen(false)}
                 >
                   {t.nav.testimonials}
+                </a>
+                <a
+                  href="#calculators"
+                  className="text-foreground hover:text-primary transition-colors cursor-pointer px-2 py-2"
+                  onClick={() => setMobileMenuOpen(false)}
+                >
+                  {t.nav.calculators}
                 </a>
                 <a
                   href="#pricing"
@@ -400,15 +559,15 @@ export default function Home() {
               {t.hero.subheadline}
             </p>
             <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center items-stretch sm:items-center max-w-2xl mx-auto">
-              <a
-                href="#pricing"
-                className="w-full sm:w-auto px-6 sm:px-8 py-3 sm:py-4 bg-cta hover:bg-cta/90 text-white rounded-lg font-semibold text-base sm:text-lg transition-colors cursor-pointer text-center"
+              <ShinyButton 
+                onClick={() => document.getElementById('pricing')?.scrollIntoView({ behavior: 'smooth' })}
+                className="w-full sm:w-auto px-6 sm:px-8 py-3 sm:py-4 bg-cta hover:bg-cta/90 text-white"
               >
                 {t.hero.cta}
-              </a>
-              <button className="w-full sm:w-auto px-6 sm:px-8 py-3 sm:py-4 border-2 border-primary text-primary hover:bg-primary/10 rounded-lg font-semibold text-base sm:text-lg transition-colors cursor-pointer">
+              </ShinyButton>
+              <ShinyButton className="w-full sm:w-auto px-6 sm:px-8 py-3 sm:py-4 bg-primary hover:bg-primary/90 text-white border-none">
                 {t.hero.secondaryCta}
-              </button>
+              </ShinyButton>
             </div>
           </div>
         </div>
@@ -425,30 +584,30 @@ export default function Home() {
               {t.features.subtitle}
             </p>
           </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 lg:gap-8">
-            {t.features.items.map((feature, index) => {
-              const icons = [SparklesIcon, AcademicCapIcon, ChartBarIcon, ClockIcon, GlobeAltIcon, UserGroupIcon];
-              const Icon = icons[index];
-              const glowColors: Array<'blue' | 'green' | 'purple'> = ['blue', 'green', 'blue', 'green', 'blue', 'green'];
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 lg:gap-10">
+            {t.features.items.slice(0, 4).map((feature, index) => {
+              const gradients: Array<'orange' | 'gray' | 'purple' | 'green'> = ['orange', 'gray', 'purple', 'green'];
+              const badgeColors = ['#F59E0B', '#4B5563', '#8B5CF6', '#10B981'];
+              const images = [
+                '/images/personalized_learning.png',
+                '/images/clinical_prep.png',
+                '/images/instant_feedback.png',
+                '/images/progress_tracking.png'
+              ];
+              const badges = [t.hero.badge, "Clinical Prep", "Institutional", "Global"];
+              
               return (
-                <GlowCard
+                <GradientCard
                   key={index}
-                  customSize={true}
-                  glowColor={glowColors[index]}
-                  className="p-6 h-auto w-full"
-                >
-                  <div className="flex flex-col h-full">
-                    <div className="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center mb-4">
-                      <Icon className="h-6 w-6 text-primary" />
-                    </div>
-                    <h3 className="text-xl font-semibold text-foreground mb-2">
-                      {feature.title}
-                    </h3>
-                    <p className="text-foreground/70">
-                      {feature.description}
-                    </p>
-                  </div>
-                </GlowCard>
+                  gradient={gradients[index]}
+                  badgeText={badges[index]}
+                  badgeColor={badgeColors[index]}
+                  title={feature.title}
+                  description={feature.description}
+                  ctaText={t.hero.cta}
+                  ctaHref="#pricing"
+                  imageUrl={images[index]}
+                />
               );
             })}
           </div>
@@ -495,6 +654,107 @@ export default function Home() {
                 </GlowCard>
               );
             })}
+          </div>
+        </div>
+      </section>
+
+      {/* Calculators Section */}
+      <section id="calculators" className="py-12 sm:py-16 lg:py-20 px-4 sm:px-6 lg:px-8">
+        <div className="max-w-7xl mx-auto">
+          <div className="text-center mb-10 sm:mb-16">
+            <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-foreground mb-3 sm:mb-4">
+              {t.calculators.title}
+            </h2>
+            <p className="text-base sm:text-lg lg:text-xl text-foreground/70 max-w-2xl mx-auto px-4">
+              {t.calculators.subtitle}
+            </p>
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 lg:gap-8">
+
+            {/* Temperature */}
+            <GlowCard customSize={true} glowColor="blue" className="p-6 h-auto w-full">
+              <div className="flex flex-col h-full">
+                <div className="flex items-center gap-3 mb-6">
+                  <div className="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center flex-shrink-0">
+                    <FireIcon className="h-6 w-6 text-primary" />
+                  </div>
+                  <h3 className="text-xl font-semibold text-foreground">{t.calculators.temperature.title}</h3>
+                </div>
+                <div className="grid grid-cols-2 gap-x-4 gap-y-4">
+                  {(['celsius', 'fahrenheit', 'kelvin'] as const).map(field => (
+                    <label key={field} className={`flex flex-col gap-1 ${field === 'kelvin' ? 'col-span-2 max-w-[calc(50%-0.5rem)]' : ''}`}>
+                      <span className="text-xs font-medium text-foreground/60 uppercase tracking-wide">
+                        {t.calculators.temperature[field]}
+                      </span>
+                      <input
+                        type="number"
+                        value={temp[field]}
+                        onChange={e => handleTemp(field, e.target.value)}
+                        placeholder="—"
+                        className="w-full px-3 py-2 rounded-lg bg-background border border-primary/20 focus:border-primary/60 focus:outline-none text-foreground text-sm transition-colors"
+                      />
+                    </label>
+                  ))}
+                </div>
+              </div>
+            </GlowCard>
+
+            {/* Weight */}
+            <GlowCard customSize={true} glowColor="green" className="p-6 h-auto w-full">
+              <div className="flex flex-col h-full">
+                <div className="flex items-center gap-3 mb-6">
+                  <div className="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center flex-shrink-0">
+                    <ScaleIcon className="h-6 w-6 text-primary" />
+                  </div>
+                  <h3 className="text-xl font-semibold text-foreground">{t.calculators.weight.title}</h3>
+                </div>
+                <div className="grid grid-cols-2 gap-x-4 gap-y-4">
+                  {(['kg', 'lbs', 'g', 'mg', 'oz'] as const).map(field => (
+                    <label key={field} className={`flex flex-col gap-1 ${field === 'oz' ? 'col-span-2 max-w-[calc(50%-0.5rem)]' : ''}`}>
+                      <span className="text-xs font-medium text-foreground/60 uppercase tracking-wide">
+                        {t.calculators.weight[field]}
+                      </span>
+                      <input
+                        type="number"
+                        value={weight[field]}
+                        onChange={e => handleWeight(field, e.target.value)}
+                        placeholder="—"
+                        className="w-full px-3 py-2 rounded-lg bg-background border border-primary/20 focus:border-primary/60 focus:outline-none text-foreground text-sm transition-colors"
+                      />
+                    </label>
+                  ))}
+                </div>
+              </div>
+            </GlowCard>
+
+            {/* Height */}
+            <GlowCard customSize={true} glowColor="purple" className="p-6 h-auto w-full">
+              <div className="flex flex-col h-full">
+                <div className="flex items-center gap-3 mb-6">
+                  <div className="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center flex-shrink-0">
+                    <ArrowsUpDownIcon className="h-6 w-6 text-primary" />
+                  </div>
+                  <h3 className="text-xl font-semibold text-foreground">{t.calculators.height.title}</h3>
+                </div>
+                <div className="grid grid-cols-2 gap-x-4 gap-y-4">
+                  {(['feet', 'inches', 'cm', 'm'] as const).map(field => (
+                    <label key={field} className="flex flex-col gap-1">
+                      <span className="text-xs font-medium text-foreground/60 uppercase tracking-wide">
+                        {field === 'feet' ? "Feet (ft)" : field === 'inches' ? "Inches (in)" : t.calculators.height[field]}
+                      </span>
+                      <input
+                        type="number"
+                        value={height[field]}
+                        onChange={e => handleHeight(field, e.target.value)}
+                        placeholder="—"
+                        className="w-full px-3 py-2 rounded-lg bg-background border border-primary/20 focus:border-primary/60 focus:outline-none text-foreground text-sm transition-colors"
+                      />
+                    </label>
+                  ))}
+                </div>
+              </div>
+            </GlowCard>
+
           </div>
         </div>
       </section>
@@ -546,15 +806,15 @@ export default function Home() {
                         </li>
                       ))}
                     </ul>
-                    <button
-                      className={`w-full py-3 rounded-lg font-semibold transition-colors cursor-pointer ${
+                    <ShinyButton
+                      className={`w-full py-3 text-white ${
                         plan.popular
-                          ? 'bg-cta hover:bg-cta/90 text-white'
-                          : 'bg-primary/10 hover:bg-primary/20 text-primary'
+                          ? 'bg-cta hover:bg-cta/90'
+                          : 'bg-primary hover:bg-primary/90'
                       }`}
                     >
                       {plan.cta}
-                    </button>
+                    </ShinyButton>
                   </div>
                 </GlowCard>
               );
